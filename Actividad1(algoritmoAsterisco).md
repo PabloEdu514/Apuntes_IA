@@ -1,40 +1,44 @@
-# Apuntes-Actividades-IA
-Repositorio de apuntes, actividades y proyectos de la materia de IA, de Pablo.
-## 1.- Actividad 05/02/2025
+# Notas y Ejercicios de Inteligencia Artificial  
+Este repositorio contiene material relacionado con las actividades y proyectos de la materia de Inteligencia Artificial, desarrollado por Pablo.  
 
-En esta actividad, se busca encontrar el camino óptimo desde un *punto de inicio (A)* hasta un *punto final (B)* dentro de una cuadrícula. Esto se realiza utilizando conceptos de *teoría de grafos* y cálculos específicos asociados a los costos de movimiento.
-#### *Reglas del Movimiento en la Cuadrícula*
+## **Actividad - 05/02/2025**  
+En esta actividad, se plantea un problema en el que se debe encontrar la mejor ruta desde un **punto inicial (A)** hasta un **destino (B)** dentro de una cuadrícula. Para lograrlo, se utilizarán principios de **teoría de grafos** y un sistema de cálculo basado en costos de desplazamiento.  
 
-1.  *Movimientos permitidos:*
-    
-    -   *Lateral (horizontal o vertical):* El costo de cada movimiento es de *10 unidades*.
-    -   *Diagonal:* El costo de cada movimiento es de *14 unidades*.
-2.  *Cálculo del costo total:*
-    
-    -   *G (Costo acumulado):* Es el costo total de los movimientos realizados desde el punto inicial hasta el cuadro actual. Por ejemplo:
-        -   Si el primer movimiento es horizontal, G = 10.
-        -   Si se mueve diagonalmente después de esto, G = 10 + 14 = 24.
-    -   *H (Costo heurístico):* Es una estimación del costo restante para llegar al punto final (B). Se calcula basándose en la cantidad de movimientos que faltan.
-    -   *F (Costo total estimado):* Es la suma de G y H, es decir: F=G+H.
-#### *Descripción del Procedimiento*
+### **📌 Normas de Movimiento en la Cuadrícula**  
 
-1.  *Inicio:*
-    
-    -   Se selecciona el punto de partida (A) y se inicializa G = 0.
-2.  *Exploración de caminos:*
-    
-    -   A partir del cuadro actual, se calculan las posibles posiciones adyacentes(LA:Lista Abierta) donde se puede mover.
-    -   Para cada posición, se calculan los valores de G, H y F.
-3.  *Selección del camino óptimo:*
-    
-    -   Entre todas las opciones disponibles, se selecciona el cuadro con el valor más bajo de F.
-    -   Si dos cuadros tienen el mismo valor de F, se elige el primero que se evaluó o según otro criterio preestablecido.
-4.  *Avance hacia el punto final (B):*
-    
-    -   El proceso se repite hasta alcanzar el punto final (B), registrando los cálculos en cada paso(LC: Lista Cerrada). 
+1. **Movimientos posibles:**  
+   - **Vertical y Horizontal**: Cada desplazamiento en estas direcciones tiene un costo de **10 unidades**.  
+   - **Diagonal**: Desplazarse en diagonal cuesta **14 unidades**.  
+
+2. **Determinación del costo total de un camino:**  
+   - **G (Costo acumulado)**: Representa la suma de los costos de todos los movimientos realizados desde el inicio hasta la posición actual.  
+     - Ejemplo: Si el primer movimiento es hacia la derecha, G será **10**. Si después se mueve en diagonal, G se actualizará a **24** (10 + 14).  
+   - **H (Costo heurístico)**: Es una estimación del costo necesario para llegar a la meta desde la posición actual.  
+   - **F (Costo total estimado)**: Se obtiene sumando G y H, es decir:  
+     ```math
+     F = G + H
+     ```  
+
 ---
 
-### Recursos Adicionales
+### **📍 Pasos para encontrar la mejor ruta**  
 
+1. **Definir el punto de inicio:**  
+   - Se selecciona la celda inicial (A) y se asigna un costo acumulado **G = 0**.  
 
-- ![Gráfico de la Actividad](Actividad1.jpeg)
+2. **Explorar las opciones de movimiento:**  
+   - Se identifican todas las casillas adyacentes a la posición actual (Lista Abierta).  
+   - Se calculan los valores de G, H y F para cada una de ellas.  
+
+3. **Elegir la mejor opción:**  
+   - Se selecciona la casilla con el **menor valor de F** como el siguiente paso a seguir.  
+   - En caso de empate, se puede elegir según el orden en que fueron evaluadas u otro criterio establecido.  
+
+4. **Repetir el proceso hasta alcanzar B:**  
+   - Se repiten estos pasos hasta que el punto **B** sea alcanzado, registrando los valores de cada celda en la **Lista Cerrada** para evitar reevaluarlas innecesariamente.  
+
+---
+
+### **📎 Recursos Adicionales**  
+
+- ![Visualización de la Ruta](Actividad1.jpeg)  
