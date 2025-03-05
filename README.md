@@ -1,7 +1,7 @@
 Actividad red neuronal 1
 Nombre: Pablo Eduardo Reyes Aguirre                                                            Calificación:____________
 
-Red neuronal para jugar al 5 en línea sin gravedad en un tablero de 25*25
+Red neuronal para jugar al 5 en línea sin gravedad en un tablero de 25*25.
 1.	Definir el Tipo de red neuronal y describir cada una de sus partes 
 R= Para el diseño de la red neuronal considero que la major opcion es utilizar busqueda a lo profundo y realizar algo similar al algoritmo A-asterisco para identificar que esta pasando al rededor del nodo en el que nos encontramos en este caso donde se acaba de colocar la ficha 
 
