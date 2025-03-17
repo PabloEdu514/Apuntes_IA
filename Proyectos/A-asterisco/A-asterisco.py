@@ -1,6 +1,5 @@
 import pygame
 import heapq
-import time
 
 # Configuraciones iniciales
 ANCHO_VENTANA = 800
@@ -61,8 +60,19 @@ class Nodo:
         if not self.es_fin() and not self.es_inicio():
             self.color = VERDE
 
-    def dibujar(self, ventana):
+    def dibujar(self, ventana, fuente):
         pygame.draw.rect(ventana, self.color, (self.x, self.y, self.ancho, self.ancho))
+
+        if self.g < float("inf"):  # Solo mostrar si el nodo ha sido visitado
+            color_texto = NEGRO if self.color in [BLANCO, VERDE, AZUL] else BLANCO
+
+            g_text = fuente.render(f"G:{int(self.g)}", True, color_texto)
+            h_text = fuente.render(f"H:{int(self.h)}", True, color_texto)
+            f_text = fuente.render(f"F:{int(self.g + self.h)}", True, color_texto)
+
+            ventana.blit(g_text, (self.x + 5, self.y + 5))
+            ventana.blit(h_text, (self.x + 5, self.y + self.ancho // 2 - 5))
+            ventana.blit(f_text, (self.x + 5, self.y + self.ancho - 15))
 
 def crear_grid(filas, ancho):
     grid = []
@@ -81,11 +91,11 @@ def dibujar_grid(ventana, filas, ancho):
         for j in range(filas):
             pygame.draw.line(ventana, GRIS, (j * ancho_nodo, 0), (j * ancho_nodo, ancho))
 
-def dibujar(ventana, grid, filas, ancho):
+def dibujar(ventana, grid, filas, ancho, fuente):
     ventana.fill(BLANCO)
     for fila in grid:
         for nodo in fila:
-            nodo.dibujar(ventana)
+            nodo.dibujar(ventana, fuente)
     dibujar_grid(ventana, filas, ancho)
     pygame.display.update()
 
@@ -102,13 +112,17 @@ def heuristica(nodo1, nodo2):
     return abs(x1 - x2) + abs(y1 - y2)
 
 def reconstruir_camino(nodo_final):
-    actual = nodo_final.padre  # Evita pintar el nodo final
+    actual = nodo_final.padre  
+    camino = []
     while actual and actual.padre:
-        if not actual.es_fin():  # Asegura que el nodo final se quede morado
+        if not actual.es_fin():  
             actual.hacer_camino()
+        camino.append(actual.get_pos())
         actual = actual.padre
+    camino.reverse()
+    print("Ruta más corta:", camino)
 
-def a_estrella(grid, inicio, fin, ventana, filas, ancho, paso_a_paso=True):
+def a_estrella(grid, inicio, fin, ventana, filas, ancho, fuente, paso_a_paso=True):
     direcciones = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
     open_set = []
     heapq.heappush(open_set, (0, inicio))
@@ -117,11 +131,6 @@ def a_estrella(grid, inicio, fin, ventana, filas, ancho, paso_a_paso=True):
     lista_cerrada = set()
     
     while open_set:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-
         _, nodo_actual = heapq.heappop(open_set)
 
         if nodo_actual in lista_cerrada:
@@ -150,7 +159,7 @@ def a_estrella(grid, inicio, fin, ventana, filas, ancho, paso_a_paso=True):
                     if not vecino.es_fin():
                         vecino.color = AZUL
         
-        dibujar(ventana, grid, filas, ancho)
+        dibujar(ventana, grid, filas, ancho, fuente)
         
         if paso_a_paso:
             esperando = True
@@ -162,15 +171,16 @@ def a_estrella(grid, inicio, fin, ventana, filas, ancho, paso_a_paso=True):
     return False
 
 def main(ventana, ancho):
+    pygame.font.init()
+    fuente = pygame.font.Font(None, 18)  
     FILAS = 20
     grid = crear_grid(FILAS, ancho)
     inicio = None
     fin = None
     corriendo = True
-    paso_a_paso = True
     
     while corriendo:
-        dibujar(ventana, grid, FILAS, ancho)
+        dibujar(ventana, grid, FILAS, ancho, fuente)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 corriendo = False
@@ -197,9 +207,9 @@ def main(ventana, ancho):
                     fin = None
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN and inicio and fin:
-                    a_estrella(grid, inicio, fin, ventana, FILAS, ancho, paso_a_paso)
+                    a_estrella(grid, inicio, fin, ventana, FILAS, ancho, fuente, paso_a_paso=True)
                 if event.key == pygame.K_c and inicio and fin:
-                    a_estrella(grid, inicio, fin, ventana, FILAS, ancho, paso_a_paso=False)
+                    a_estrella(grid, inicio, fin, ventana, FILAS, ancho, fuente, paso_a_paso=False)
     
     pygame.quit()
 
