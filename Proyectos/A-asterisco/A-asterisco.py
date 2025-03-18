@@ -109,7 +109,7 @@ def obtener_click_pos(pos, filas, ancho):
 def heuristica(nodo1, nodo2):
     x1, y1 = nodo1.get_pos()
     x2, y2 = nodo2.get_pos()
-    return abs(x1 - x2) + abs(y1 - y2)
+    return (abs(x1 - x2) + abs(y1 - y2))*10
 
 def reconstruir_camino(nodo_final):
     actual = nodo_final.padre  
@@ -149,7 +149,7 @@ def a_estrella(grid, inicio, fin, ventana, filas, ancho, fuente, paso_a_paso=Tru
                 if vecino.es_pared() or vecino in lista_cerrada:
                     continue
 
-                nuevo_g = nodo_actual.g + (1.4 if dx != 0 and dy != 0 else 1)
+                nuevo_g = nodo_actual.g + (14 if dx != 0 and dy != 0 else 10)
 
                 if nuevo_g < vecino.g:
                     vecino.g = nuevo_g
@@ -173,7 +173,7 @@ def a_estrella(grid, inicio, fin, ventana, filas, ancho, fuente, paso_a_paso=Tru
 def main(ventana, ancho):
     pygame.font.init()
     fuente = pygame.font.Font(None, 18)  
-    FILAS = 20
+    FILAS = 15
     grid = crear_grid(FILAS, ancho)
     inicio = None
     fin = None
