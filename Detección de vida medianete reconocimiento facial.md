@@ -27,8 +27,11 @@ Los puntos relevantes son 1 (frente), 4 (mentón), 6 (nariz), 195 (mejilla infer
 3. Detección de Emociones
 Además de verificar si es una persona real, podemos analizar sus emociones con los puntos faciales clave.
 •	Alegría: Cachetes más elevados, labios estirados y un poco hacia arriba, ojos un poco cerrados.
+
 •	Tristeza: Cejas inclinadas hacia arriba y hacia el centro, comisuras de los labios hacia abajo.
+
 •	Enojo: Cejas juntas y hacia abajo, tensión en la boca y los labios.
+
 •	Sorpresa: Ojos muy abiertos, boca abierta, cejas elevadas.
 
 ![LandMark](Imagenes/MediaPipe.jpg)
