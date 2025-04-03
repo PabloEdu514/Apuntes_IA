@@ -11,6 +11,8 @@ El modelo de MEDIAPIPE ya nos proporciona puntos de referencia en la cara, de lo
 2.1 Movimiento de los Párpados
 Según información de fuentes confiables estos son los puntos característicos que corresponden a los parpados 33, 133, 159, 145, 362, 263, 386, 374. Con estos puntos podemos medir la apertura y cierre de los ojos. Si la persona no parpadea en cierto periodo de tiempo podemos decir que están intentando hackear el sistema.
 
+![LandMark](Imagenes/LandMarkNUM.jpg)
+
 2.2 Movimiento de los Labios
 Los puntos relevantes para el movimiento de los labios son 13, 14, 78, 308, 191. Con esto podemos checar la apertura de la boca. Podríamos hacer algo como lo que realiza mercado libre cuando te pide autenticar tu identidad que te da un texto y lo tienes que leer así podemos ver si se trata de una persona viva.
 
@@ -21,9 +23,12 @@ Con estos pequeños movimientos musculares en cejas, mejillas y labios nos dan u
 2.4 Movimientos de Cabeza
 Los puntos relevantes son 1 (frente), 4 (mentón), 6 (nariz), 195 (mejilla inferior). Pedirle a la persona que incline o gire la cabeza ayuda a comprobar que es un objeto tridimensional y no una imagen plana.
 
+
 3. Detección de Emociones
 Además de verificar si es una persona real, podemos analizar sus emociones con los puntos faciales clave.
 •	Alegría: Cachetes más elevados, labios estirados y un poco hacia arriba, ojos un poco cerrados.
 •	Tristeza: Cejas inclinadas hacia arriba y hacia el centro, comisuras de los labios hacia abajo.
 •	Enojo: Cejas juntas y hacia abajo, tensión en la boca y los labios.
 •	Sorpresa: Ojos muy abiertos, boca abierta, cejas elevadas.
+
+![LandMark](Imagenes/MediaPipe.jpg)
