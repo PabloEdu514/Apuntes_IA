@@ -2,6 +2,8 @@ Detección de Vida Mediante Deteccion Facial
 
 Para detectar con visión artificial que una persona está viva y no únicamente esta intentando acceder al sistema con alguna trampa como utilizar una imagen de la cara, necesitamos implementar un modelo que nos permita detectar si una persona se encuentra viva o no, para esto se me ocurre que podemos utilizar los distintos puntos que mediapipe nos proporciona de la cara para identificar patrones por ejemplo la boca no tiene la misma posición por un largo periodo de tiempo este tipo de cosas es lo que vamos a buscar por ejemplo centrarnos en un punto en específico que corresponda a los labios en este caso y compararlo con otro para medir la distancia entre ellos si esta cambia tener un conjunto de valores que nos permitan saber si se trata de un gesto de enojo, si se está riendo o si se encuentra asombrado, además si esto lo complemento con más puntos de la cara como los ojos podemos determinar que se trata de una persona viva, otro punto que se me ocurre es enfocarnos en el parpadeo de los ojos, ya que en caso de necesitar acceder con una imagen esta por obvias razones no va a parpadear a menos que sea un video pero podemos agregar otra característica que nos permita validar que no se trata de un video, para esto podemos medir profundidades en la cara.
 
+![LandMark](Imagenes/Indio.png)
+
 2. Puntos Clave para la Detección
 El modelo de MEDIAPIPE ya nos proporciona puntos de referencia en la cara, de los cuales hay algunos que son mas que necesarios para saber que se trata de una persona real y viva:
 
