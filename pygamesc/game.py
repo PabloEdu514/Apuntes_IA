@@ -1,6 +1,8 @@
 import pygame
 import random
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 pygame.init()
 
@@ -20,12 +22,20 @@ gravedad = 1
 en_suelo = True
 menu_activo = True
 modo_auto = False
+modo_modelo = None  # 'arbol', 'nn', 'knn'
 
 # Datos y modelos
 datos_salto = []
 datos_movimiento = []
-modelo_salto = None
-modelo_movimiento = None
+
+modelo_salto_arbol = None
+modelo_movimiento_arbol = None
+
+modelo_salto_nn = None
+modelo_movimiento_nn = None
+
+modelo_salto_knn = None
+modelo_movimiento_knn = None
 
 # Cooldown movimiento
 accion_actual = 0
@@ -70,9 +80,6 @@ fondo_img = pygame.image.load('C:\\Users\\pablo\\OneDrive\\Documentos\\Phaser\\p
 nave_img = pygame.image.load('C:\\Users\\pablo\\OneDrive\\Documentos\\Phaser\\pygamesc\\assets\\game\\ufo.png')
 fondo_img = pygame.transform.scale(fondo_img, (w, h))
 
-# Movimiento de regreso
-regresando = False
-
 def disparar_bala_horizontal():
     global bala_disparada, velocidad_bala
     if not bala_disparada:
@@ -100,38 +107,71 @@ def manejar_salto():
             en_suelo = True
 
 def entrenar_modelos():
-    global modelo_salto, modelo_movimiento
+    global modelo_salto_arbol, modelo_movimiento_arbol
+    global modelo_salto_nn, modelo_movimiento_nn
+    global modelo_salto_knn, modelo_movimiento_knn
+
     if datos_salto:
         X = [(v, d) for v, d, s in datos_salto]
         y = [s for v, d, s in datos_salto]
-        modelo_salto = DecisionTreeClassifier().fit(X, y)
+        modelo_salto_arbol = DecisionTreeClassifier().fit(X, y)
+        modelo_salto_nn = MLPClassifier(max_iter=500).fit(X, y)
+        modelo_salto_knn = KNeighborsClassifier(n_neighbors=3).fit(X, y)
+        print(f"Modelos salto entrenados con {len(X)} muestras.")
+    else:
+        modelo_salto_arbol = None
+        modelo_salto_nn = None
+        modelo_salto_knn = None
+
     if datos_movimiento:
-        X = [[dx, jug_x, bala_x] for (dx, jug_x, bala_x), a in datos_movimiento]
-        y = [a for (_, _, _), a in datos_movimiento]
-        modelo_movimiento = DecisionTreeClassifier().fit(X, y)
+        X_mov = [[dx, jug_x, bala_x] for (dx, jug_x, bala_x), accion in datos_movimiento]
+        y_mov = [accion for (_, _, _), accion in datos_movimiento]
+        modelo_movimiento_arbol = DecisionTreeClassifier().fit(X_mov, y_mov)
+        modelo_movimiento_nn = MLPClassifier(max_iter=500).fit(X_mov, y_mov)
+        modelo_movimiento_knn = KNeighborsClassifier(n_neighbors=3).fit(X_mov, y_mov)
+        print(f"Modelos movimiento entrenados con {len(X_mov)} muestras.")
+    else:
+        modelo_movimiento_arbol = None
+        modelo_movimiento_nn = None
+        modelo_movimiento_knn = None
 
 def prediccion_salto():
-    if not modelo_salto: return False
-    dx = abs(jugador.x - bala_horizontal.x)
-    return modelo_salto.predict([(velocidad_bala, dx)])[0] == 1
+    if modo_modelo == 'arbol' and modelo_salto_arbol:
+        dx = abs(jugador.x - bala_horizontal.x)
+        return modelo_salto_arbol.predict([(velocidad_bala, dx)])[0] == 1
+    elif modo_modelo == 'nn' and modelo_salto_nn:
+        dx = abs(jugador.x - bala_horizontal.x)
+        return modelo_salto_nn.predict([(velocidad_bala, dx)])[0] == 1
+    elif modo_modelo == 'knn' and modelo_salto_knn:
+        dx = abs(jugador.x - bala_horizontal.x)
+        return modelo_salto_knn.predict([(velocidad_bala, dx)])[0] == 1
+    return False
 
 def prediccion_movimiento():
-    if not modelo_movimiento: return 0
-    dx = abs(jugador.x - bala_vertical.x)
-    return modelo_movimiento.predict([[dx, jugador.x, bala_vertical.x]])[0]
+    if modo_modelo == 'arbol' and modelo_movimiento_arbol:
+        dx = abs(jugador.x - bala_vertical.x)
+        return modelo_movimiento_arbol.predict([[dx, jugador.x, bala_vertical.x]])[0]
+    elif modo_modelo == 'nn' and modelo_movimiento_nn:
+        dx = abs(jugador.x - bala_vertical.x)
+        return modelo_movimiento_nn.predict([[dx, jugador.x, bala_vertical.x]])[0]
+    elif modo_modelo == 'knn' and modelo_movimiento_knn:
+        dx = abs(jugador.x - bala_vertical.x)
+        return modelo_movimiento_knn.predict([[dx, jugador.x, bala_vertical.x]])[0]
+    return 0
 
 def guardar_datos_salto():
     dx = abs(jugador.x - bala_horizontal.x)
-    datos_salto.append((velocidad_bala, dx, 1 if salto else 0))
+    salto_hecho = 1 if salto else 0
+    datos_salto.append((velocidad_bala, dx, salto_hecho))
 
 def guardar_datos_movimiento(accion):
     dx = abs(jugador.x - bala_vertical.x)
     datos_movimiento.append(((dx, jugador.x, bala_vertical.x), accion))
 
 def mostrar_menu():
-    global menu_activo, modo_auto
+    global menu_activo, modo_auto, modo_modelo
     pantalla.fill(NEGRO)
-    texto = fuente.render("Presiona M: Manual | D: Árbol | Q: Salir", True, BLANCO)
+    texto = fuente.render("Presiona M: Manual | D: Árbol | N: Red Neuronal | K: KNN | Q: Salir", True, BLANCO)
     pantalla.blit(texto, (w // 8, h // 2))
     pygame.display.flip()
     while menu_activo:
@@ -139,20 +179,41 @@ def mostrar_menu():
             if e.type == pygame.QUIT: pygame.quit(); exit()
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_m:
-                    modo_auto = False; menu_activo = False
+                    modo_auto = False
+                    modo_modelo = None
+                    menu_activo = False
+                    print("Modo manual activado.")
                 elif e.key == pygame.K_d:
-                    modo_auto = True; entrenar_modelos(); menu_activo = False
+                    modo_auto = True
+                    modo_modelo = 'arbol'
+                    entrenar_modelos()
+                    menu_activo = False
+                elif e.key == pygame.K_n:
+                    modo_auto = True
+                    modo_modelo = 'nn'
+                    entrenar_modelos()
+                    menu_activo = False
+                elif e.key == pygame.K_k:
+                    modo_auto = True
+                    modo_modelo = 'knn'
+                    entrenar_modelos()
+                    menu_activo = False
                 elif e.key == pygame.K_q:
-                    pygame.quit(); exit()
+                    pygame.quit()
+                    exit()
 
 def reiniciar_juego():
     global salto, en_suelo, bala_disparada, menu_activo, fondo_x1, fondo_x2, accion_actual, tiempo_accion
     jugador.x, jugador.y = POSICION_ORIGEN, h - 100
     reset_bala_horizontal()
     reset_bala_vertical()
-    salto, en_suelo, bala_disparada = False, True, False
-    fondo_x1, fondo_x2 = 0, w
-    accion_actual, tiempo_accion = 0, 0
+    salto = False
+    en_suelo = True
+    bala_disparada = False
+    fondo_x1 = 0
+    fondo_x2 = w
+    accion_actual = 0
+    tiempo_accion = 0
     menu_activo = True
     mostrar_menu()
 
@@ -166,6 +227,7 @@ def update():
     pantalla.blit(fondo_img, (fondo_x1, 0))
     pantalla.blit(fondo_img, (fondo_x2, 0))
 
+    global current_frame, frame_count
     frame_count += 1
     if frame_count >= frame_speed:
         current_frame = (current_frame + 1) % len(jugador_frames)
@@ -179,7 +241,6 @@ def update():
         bala_horizontal.x += velocidad_bala
         if bala_horizontal.x < 0:
             reset_bala_horizontal()
-            jugador.x = POSICION_ORIGEN
 
     bala_vertical.y += velocidad_bala_vertical
     if bala_vertical.y > h:
@@ -189,11 +250,11 @@ def update():
     pantalla.blit(bala_img, (bala_vertical.x, bala_vertical.y))
 
     if jugador.colliderect(bala_horizontal) or jugador.colliderect(bala_vertical):
-        print("¡Colisión!")
+        print("\u00a1Colisi\u00f3n!")
         reiniciar_juego()
 
 def main():
-    global salto, en_suelo, accion_actual, tiempo_accion, regresando
+    global salto, en_suelo, accion_actual, tiempo_accion
     reloj = pygame.time.Clock()
     mostrar_menu()
     correr = True
@@ -203,32 +264,48 @@ def main():
     while correr:
         movimiento = 0
         for evento in pygame.event.get():
-            if evento.type == pygame.QUIT: correr = False
+            if evento.type == pygame.QUIT:
+                correr = False
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE and en_suelo:
-                salto, en_suelo = True, False
+                salto = True
+                en_suelo = False
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]: jugador.x = max(0, jugador.x - 5); movimiento = 1
-        elif keys[pygame.K_RIGHT]: jugador.x = min(w - jugador.width, jugador.x + 5); movimiento = 2
+        if keys[pygame.K_LEFT]:
+            jugador.x = max(0, jugador.x - 5)
+            movimiento = 1
+        elif keys[pygame.K_RIGHT]:
+            jugador.x = min(w - jugador.width, jugador.x + 5)
+            movimiento = 2
+        else:
+            movimiento = 0
 
-        if salto: manejar_salto()
+        if salto:
+            manejar_salto()
+
+        # Evaluar si debe regresar caminando
+        destino = bala_vertical.x - jugador.width // 2
+        regresar_caminando = (
+            bala_vertical.y > jugador.y + jugador.height and
+            abs(jugador.x - destino) > 3
+        )
 
         if modo_auto:
             if en_suelo and prediccion_salto():
-                salto, en_suelo = True, False
+                salto = True
+                en_suelo = False
 
-            # Si ya esquivó y está lejos de la bala, regresa caminando
-            if bala_vertical.y > jugador.y and jugador.x != POSICION_ORIGEN:
-                if jugador.x > POSICION_ORIGEN:
-                    jugador.x -= 2
-                elif jugador.x < POSICION_ORIGEN:
-                    jugador.x += 2
+            if regresar_caminando:
+                if jugador.x < destino:
+                    jugador.x += 6
+                elif jugador.x > destino:
+                    jugador.x -= 6
             else:
-                # Solo si no está regresando
                 mov_pred = prediccion_movimiento()
                 if mov_pred != accion_actual:
                     if tiempo_accion >= UMBRAL_TIEMPO:
-                        accion_actual, tiempo_accion = mov_pred, 0
+                        accion_actual = mov_pred
+                        tiempo_accion = 0
                     else:
                         tiempo_accion += 1
                 else:
@@ -240,8 +317,15 @@ def main():
                 elif accion_actual == 2 and jugador.x < w - jugador.width and abs(dx) < UMBRAL_PELIGRO:
                     jugador.x += 5
         else:
-            guardar_datos_salto()
-            if movimiento != 0: guardar_datos_movimiento(movimiento)
+            if regresar_caminando:
+                if jugador.x < destino:
+                    jugador.x += 6
+                elif jugador.x > destino:
+                    jugador.x -= 6
+            else:
+                guardar_datos_salto()
+                if movimiento != 0:
+                    guardar_datos_movimiento(movimiento)
 
         if not bala_disparada:
             disparar_bala_horizontal()
