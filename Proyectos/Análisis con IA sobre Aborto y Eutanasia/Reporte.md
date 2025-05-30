@@ -19,7 +19,6 @@ date: "29 de mayo de 2025"
 ## Índice
 
 - [Análisis Ético con Inteligencia Artificial sobre Aborto y Eutanasia](#análisis-ético-con-inteligencia-artificial-sobre-aborto-y-eutanasia)
-  - [Proyecto Académico](#proyecto-académico)
   - [Índice](#índice)
   - [Introducción](#introducción)
   - [Metodología y entrenamiento del modelo](#metodología-y-entrenamiento-del-modelo)
